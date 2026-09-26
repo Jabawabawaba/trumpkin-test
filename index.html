@@ -158,6 +158,8 @@ tr.grp td{font-weight:600;padding-top:1rem;color:var(--moss)}
 .usebtn{font:inherit;font-size:.88rem;color:var(--spruce);background:transparent;border:1px solid var(--spruce);border-radius:.35rem;padding:.2rem .6rem;cursor:pointer;white-space:nowrap}
 .usebtn[disabled]{opacity:.5;cursor:default;border-style:dashed}
 .why{display:block;color:var(--moss);font-size:.84rem}
+a.why.rpt{text-decoration:underline;text-underline-offset:.15em;margin-top:.15rem;font-size:.78rem}
+@media print{a.why.rpt{display:none}}
 .legend{list-style:none;margin:.2rem .25rem .1rem;padding:0;display:grid;gap:.4rem;font-size:.9rem;line-height:1.35}
 .legend:empty{display:none}
 .legend li{display:grid;grid-template-columns:1.9rem 1fr;gap:.55rem;align-items:start}
@@ -463,7 +465,9 @@ footer p{margin:0 0 .5rem}
         <li>Drag the benches, heater, ceiling and walls in the drawings; more heaters shown three at a time; Saunum treated as the compromise it is.</li>
       </ul></details>
       <footer>
-        <p>Version 19 October 2026, revision 3. The Trumpkin Test is an unofficial, fan-made tool. It is not written, reviewed or endorsed by the author of the Trumpkin notes. It is built from <a href="https://localmile.org/trumpkins-notes-on-building-a-sauna/" target="_blank" rel="noopener">Trumpkin's Notes on Building a Sauna</a>, the <a href="https://localmile.org/heaters/" target="_blank" rel="noopener">heater notes</a> and the <a href="https://localmile.org/proper-ventilation-for-electrically-heated-sauna-part-i/" target="_blank" rel="noopener">ventilation notes</a>. Read them; the reasoning matters more than the numbers.</p>
+        <p>If the Trumpkin notes help you build a better sauna, their author asks that you make a donation to <a href="https://worldbicyclerelief.org" target="_blank" rel="noopener">World Bicycle Relief</a> or <a href="https://wearenotforsale.org/about-us/" target="_blank" rel="noopener">Not For Sale</a>, with “Trumpkin Sauna” in the notes. For design help beyond this tool, the notes recommend <a href="https://finnishsaunadesign.fi" target="_blank" rel="noopener">Lassi Liikkanen</a>, author of <em>The Secrets of Finnish Sauna Design</em>, whose <a href="https://saunologia.fi/in-english/" target="_blank" rel="noopener">Saunologia</a> articles are the safer path wherever the two disagree.</p>
+        <p>Something wrong, or an idea? <a href="https://github.com/Jabawabawaba/trumpkin-test/issues" target="_blank" rel="noopener">Tell us on GitHub</a>. The source is at <a href="https://github.com/Jabawabawaba/trumpkin-test" target="_blank" rel="noopener">github.com/Jabawabawaba/trumpkin-test</a>. Nothing you enter leaves your browser.</p>
+        <p>Version 20 October 2026, revision 2. The Trumpkin Test is an unofficial, fan-made tool. It is not written, reviewed or endorsed by the author of the Trumpkin notes. It is built from <a href="https://localmile.org/trumpkins-notes-on-building-a-sauna/" target="_blank" rel="noopener">Trumpkin's Notes on Building a Sauna</a>, the <a href="https://localmile.org/heaters/" target="_blank" rel="noopener">heater notes</a> and the <a href="https://localmile.org/proper-ventilation-for-electrically-heated-sauna-part-i/" target="_blank" rel="noopener">ventilation notes</a>. Read them; the reasoning matters more than the numbers.</p>
         <p>It handles flat and single-slope ceilings, not vaults or coves, and benches in a straight run or an L. Wall, floor and ceiling build-ups are nominal layer sums for space planning, with no allowance for shims, trim, door framing or a roof. Most heater figures come from a transcription of the heater comparison sheet from the Trumpkin notes, which is marked as approximate, for comparison only, and not an endorsement of any model. A few (Saunum, HUUM, Harvia Legend, the older IKI Original) come from makers' spec sheets. Confirm against the current manual before you frame anything. It does not check heater clearances to combustibles, electrical sizing or building code. Those come from the heater manual, your electrician and your local inspector.</p>
       </footer>
     </main>
@@ -907,6 +911,7 @@ function runChecks(s, r, f){
   return c;
 }
 
+var REPO = 'https://github.com/Jabawabawaba/trumpkin-test', ISSUES = REPO + '/issues/new';
 var NA_BRANDS = {Harvia:1, Helo:1, Saunum:1, HUUM:1, IKI:1, Narvi:1, Aitokiuas:0, Kastor:0};   // brand-level, by whether the maker sells through North American dealers; unverified per model
 function rankHeaters(s, f){
   return HEATERS.filter(function(hh){ return hh.type === s.heater; }).map(function(hh){
@@ -1784,7 +1789,8 @@ if (typeof document !== 'undefined') (function(){
     if (!rowsToShow.length) tb.appendChild(el('tr', null, [el('td', {colspan:'8', text:'Nothing in the list is rated for a room this size.'})]));
     rowsToShow.forEach(function(x){
       var tags = (x.h.group === 'caution' ? ['Trumpkin notes advise against'] : []).concat(x.issues.filter(function(i){ return i !== 'heater choice'; }));
-      var nm = el('td', null, [document.createTextNode(x.h.name), el('span', {class:'why', text: tags.length ? 'Watch: ' + tags.join(', ') : 'No compromises in this room'})]);
+      var rpt = el('a', {class:'why rpt', href: ISSUES + '?title=' + encodeURIComponent('Wrong spec: ' + x.h.name) + '&body=' + encodeURIComponent('Heater: ' + x.h.name + '\nWhat is wrong:\nCorrect figure and source (link to the maker\u2019s spec sheet or manual):\n'), target:'_blank', rel:'noopener', text:'Report a wrong spec'});
+      var nm = el('td', null, [document.createTextNode(x.h.name), el('span', {class:'why', text: tags.length ? 'Watch: ' + tags.join(', ') : 'No compromises in this room'}), rpt]);
       var btn = el('button', {type:'button', class:'usebtn', text: s.model === x.h.id ? 'Loaded' : 'Load'});
       if (s.model === x.h.id) btn.setAttribute('disabled', ''); else btn.addEventListener('click', function(){ pickHeater(x.h.id); document.getElementById('section').scrollIntoView({behavior:'smooth', block:'center'}); });
       tb.appendChild(el('tr', s.model === x.h.id ? {class:'sel'} : null, [nm,
